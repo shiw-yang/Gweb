@@ -15,6 +15,7 @@ type Context struct {
 	// request info
 	Path   string
 	Method string
+	Params map[string]string
 	// response info
 	StatusCode int
 }
@@ -27,6 +28,12 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 		Path:   req.URL.Path,
 		Method: req.Method,
 	}
+}
+
+// Param is handling Path
+func (c *Context) Param(key string) string {
+	value := c.Params[key]
+	return value
 }
 
 // PostForm Query Status SetHeader functions are used handling request
