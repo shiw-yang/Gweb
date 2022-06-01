@@ -3,6 +3,7 @@ package gweb
 import (
 	"log"
 	"net/http"
+	"strings"
 )
 
 // HandlerFunc defines the request handler used by gweb
@@ -63,7 +64,32 @@ func (engine Engine) Run(addr string) (err error) {
 	return http.ListenAndServe(addr, engine)
 }
 
+// Use is defined to add middleware to the group
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
+}
+
+// engine as the http/net is Handler, you can enter http.ListenAndServe
+// you can see as an interface, must implement ServerHttp func
+// copy from http.ListenAndServe :
+//		The handler is typically nil, in which case the DefaultServeMux is used.
+// copy from Handler interface:
+/*	A Handler responds to an HTTP request.
+ *
+ *	ServeHTTP should write reply headers and data to the ResponseWriter
+ *	and then return. Returning signals that the request is finished; it
+ *	is not valid to use the ResponseWriter or read from the
+ *	Request.Body after or concurrently with the completion of the
+ *	ServeHTTP call.
+ */
 func (engine Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middlewares []HandlerFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
 	c := newContext(w, req)
+	c.handlers = middlewares
 	engine.router.handle(c)
 }
