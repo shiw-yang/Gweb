@@ -91,12 +91,13 @@ func (r *router) getRoutes(method string) []*node {
 	return nodes
 }
 
+// handle is a func that find a HandlerFunc for path mapping
 func (r *router) handle(c *Context) {
 	n, params := r.getRoute(c.Method, c.Path)
 	if n != nil {
 		c.Params = params
 		key := c.Method + "-" + n.pattern
-
+		// can be abbreviated as: r.handlers[key](c)
 		handlerFunc := r.handlers[key]
 		handlerFunc(c)
 	} else {
