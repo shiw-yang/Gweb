@@ -14,6 +14,7 @@ func Logger() gweb.HandlerFunc {
 		// Process request
 		c.Next()
 		// Calculate resolution time
-		log.Printf("[%d] %s in %v\n", c.StatusCode, c.Req.RequestURI, time.Since(t))
+
+		log.Printf("%s\t[%d]\t%s in %s\n", c.Method, c.StatusCode, c.Req.RequestURI, time.Since(t))
 	}
 }

@@ -21,6 +21,8 @@ type Context struct {
 	// middleware
 	handlers []HandlerFunc
 	index    int
+	// engine pointer
+	engine *Engine
 }
 
 // newContext is init func
@@ -41,6 +43,12 @@ func (c *Context) Next() {
 	for ; c.index < s; c.index++ {
 		c.handlers[c.index](c)
 	}
+}
+
+// Fail func encapsulates Json func to prompt err info
+func (c *Context) Fail(code int, err string) {
+	c.index = len(c.handlers)
+	c.Json(code, H{"message": err})
 }
 
 // Param is handling Path
@@ -88,8 +96,10 @@ func (c *Context) Data(code int, data []byte) {
 	c.Writer.Write(data)
 }
 
-func (c *Context) HTML(code int, html string) {
+func (c *Context) HTML(code int, name string, data interface{}) {
 	c.SetHeader("Context-Type", "text/html")
 	c.Status(code)
-	c.Writer.Write([]byte(html))
+	if err := c.engine.htmlTemplates.ExecuteTemplate(c.Writer, name, data); err != nil {
+		c.Fail(http.StatusInternalServerError, err.Error())
+	}
 }
