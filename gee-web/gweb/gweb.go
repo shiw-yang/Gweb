@@ -9,20 +9,22 @@ import (
 // HandlerFunc defines the request handler used by gweb
 type HandlerFunc func(c *Context)
 
-// Engine implement the interface of ServeHTTP
-type Engine struct {
-	router       *router
-	*RouterGroup                // make engine has RouterGroup's power
-	groups       []*RouterGroup // store all groups
-}
+type (
 
-// RouterGroup packets into the Engine
-type RouterGroup struct {
-	prefix      string
-	middlewares []HandlerFunc // support middleware
-	parent      *RouterGroup  // support nesting
-	engine      *Engine       // all groups share an Engine instance
-}
+	// RouterGroup packets into the Engine
+	RouterGroup struct {
+		prefix      string
+		middlewares []HandlerFunc // support middleware
+		engine      *Engine       // all groups share an Engine instance
+	}
+
+	// Engine implement the interface of ServeHTTP
+	Engine struct {
+		*RouterGroup // Embed type in go: make engine has RouterGroup's power
+		router       *router
+		groups       []*RouterGroup // store all groups
+	}
+)
 
 // New is the constructor of gweb.Engine
 func New() *Engine {
@@ -36,7 +38,6 @@ func (group *RouterGroup) Group(prefix string) *RouterGroup {
 	engine := group.engine
 	newGroup := &RouterGroup{
 		prefix: engine.prefix + prefix,
-		parent: group,
 		engine: engine,
 	}
 	engine.groups = append(engine.groups, newGroup)
@@ -51,12 +52,12 @@ func (group *RouterGroup) addRoute(method, comp string, handler HandlerFunc) {
 
 // GET defines the method to add GET request
 func (group *RouterGroup) GET(pattern string, handler HandlerFunc) {
-	group.engine.addRoute("GET", pattern, handler)
+	group.addRoute("GET", pattern, handler)
 }
 
 // POST defines the method to add POST request
 func (group *RouterGroup) POST(pattern string, handler HandlerFunc) {
-	group.engine.addRoute("POST", pattern, handler)
+	group.addRoute("POST", pattern, handler)
 }
 
 // Run defines the method to start a http server

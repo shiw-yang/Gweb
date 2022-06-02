@@ -9,30 +9,32 @@ import (
 // gweb 启动入口
 func main() {
 	r := gweb.New()
-	r.GET("/", func(c *gweb.Context) {
-		c.HTML(http.StatusOK, "<h1>hello GWeb</h1>")
+	r.GET("/index", func(c *gweb.Context) {
+		c.HTML(http.StatusOK, "<h1>Index Page</h1>")
 	})
 
-	r.GET("/hello", func(c *gweb.Context) {
-		c.String(http.StatusOK, "hello %s, you're at %s\n", c.Query("name"), c.Path)
-	})
+	v1 := r.Group("/v1")
+	{
+		v1.GET("/", func(c *gweb.Context) {
+			c.HTML(http.StatusOK, "<h1> Hello Gweb</h1>")
+		})
+		v1.GET("/hello/*", func(c *gweb.Context) {
+			// expect /hello?name=ysw
+			c.String(http.StatusOK, "hello %s,you are at %s\n", c.Query("name"), c.Path)
+		})
+	}
 
-	r.GET("/hello/:name", func(c *gweb.Context) {
+	v2 := r.Group("v2")
+	v2.GET("/hello/:name", func(c *gweb.Context) {
 		// expect /hello/ysw
-		c.String(http.StatusOK, "hello %s, you're at %s\n", c.Param("name"), c.Path)
+		c.String(http.StatusOK, "hello %s,you are at %s\n", c.Param("name"), c.Path)
 	})
-
-	r.POST("/login", func(c *gweb.Context) {
+	v2.POST("/login", func(c *gweb.Context) {
 		c.Json(http.StatusOK, gweb.H{
 			"username": c.PostForm("username"),
 			"password": c.PostForm("password"),
 		})
 	})
-
-	r.GET("/assets/*filepath", func(c *gweb.Context) {
-		c.Json(http.StatusOK, gweb.H{"filepath": c.Param("filepath")})
-	})
-
 	err := r.Run(":9999")
 	if err != nil {
 		fmt.Printf(err.Error())
