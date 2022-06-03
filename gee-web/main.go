@@ -41,6 +41,11 @@ func main() {
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/assets", "./static")
 
+	// the program will exit abnormally,if no Recovery
+	r.GET("/panic", func(c *gweb.Context) {
+		name := []string{"ysw"}
+		c.String(http.StatusOK, name[100])
+	})
 	// define
 	stu1 := &pojo.Student{Name: "shiwyang", Age: 21}
 	stu2 := &pojo.Student{Name: "Jack", Age: 50}

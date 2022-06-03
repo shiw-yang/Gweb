@@ -38,10 +38,11 @@ func New() *Engine {
 	return engine
 }
 
+// Default use Logger & Recovery middlewares
 func Default() *Engine {
 	r := New()
 	// global middleware
-	r.Use(Logger())
+	r.Use(Logger(), Recovery())
 	return r
 }
 
