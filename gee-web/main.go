@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gee-web/pojo"
 	"gweb"
-	"gweb/middlewares"
 	"html/template"
 	"log"
 	"net/http"
@@ -34,8 +33,7 @@ func FormatAsDate(t time.Time) string {
 
 // gweb 启动入口
 func main() {
-	r := gweb.New()
-	r.Use(middlewares.Logger()) // global middleware
+	r := gweb.Default()
 	// use Template func
 	r.SetFuncMap(template.FuncMap{
 		"FormatAsDate": FormatAsDate,
