@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+
 )
 
 func Recovery() HandlerFunc {
@@ -23,7 +24,7 @@ func Recovery() HandlerFunc {
 }
 
 // print stack trace for debug
-func trace(message string) any {
+func trace(message string) interface{}  {
 	var pcs [32]uintptr
 	n := runtime.Callers(3, pcs[:]) // skip first 3 caller
 
