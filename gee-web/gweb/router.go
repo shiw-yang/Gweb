@@ -81,15 +81,15 @@ func (r *router) getRoute(method, path string) (*node, map[string]string) {
 	return nil, nil
 }
 
-func (r *router) getRoutes(method string) []*node {
-	root, ok := r.roots[method]
-	if !ok {
-		return nil
-	}
-	nodes := make([]*node, 0)
-	root.travel(&nodes)
-	return nodes
-}
+// func (r *router) getRoutes(method string) []*node {
+// 	root, ok := r.roots[method]
+// 	if !ok {
+// 		return nil
+// 	}
+// 	nodes := make([]*node, 0)
+// 	root.travel(&nodes)
+// 	return nodes
+// }
 
 // handle is a func that find a HandlerFunc for path mapping
 func (r *router) handle(c *Context) {
